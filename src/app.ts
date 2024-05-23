@@ -1,4 +1,24 @@
-import express, { Application, Request, Response } from "express";
+// import express, { Application, Request, Response } from "express";
+// import cors from "cors";
+// import { productRoute } from "./app/modules/product/product.route";
+// import { orderRoute } from "./app/modules/order/order.route";
+
+// const app: Application = express();
+
+// const corsConfig = {
+//   origin: "*",
+//   credential: true,
+//   methods: ["GET", "POST", "PUT", "DELETE"],
+// };
+
+// app.use(express.json());
+// app.options("", cors(corsConfig));
+// app.use(cors(corsConfig));
+// // call the product and order route
+// app.use("/api/products", productRoute);
+// app.use("/api/orders", orderRoute);
+
+import express, { Application, Request, Response, NextFunction } from "express";
 import cors from "cors";
 import { productRoute } from "./app/modules/product/product.route";
 import { orderRoute } from "./app/modules/order/order.route";
@@ -6,15 +26,18 @@ import { orderRoute } from "./app/modules/order/order.route";
 const app: Application = express();
 
 const corsConfig = {
-  origin: "*",
-  credential: true,
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  origin: "*", // Allow requests from all origins, you can specify specific origins if needed
+  credentials: true, // Allow credentials like cookies, authorization headers, etc.
+  methods: ["GET", "POST", "PUT", "DELETE"], // Allow specified HTTP methods
 };
 
 app.use(express.json());
-app.options("", cors(corsConfig));
 app.use(cors(corsConfig));
-// call the product and order route
+
+// Preflight request handling for CORS
+app.options("*", cors(corsConfig));
+
+// Call the product and order route
 app.use("/api/products", productRoute);
 app.use("/api/orders", orderRoute);
 
@@ -23,9 +46,9 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 // Error handling middleware
-app.use((err: Error, req: Request, res: Response) => {
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
-  res.status(500).send({
+  res.status(500).json({
     status: "error",
     message: err.message,
   });
