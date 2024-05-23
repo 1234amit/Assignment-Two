@@ -1,6 +1,37 @@
 import { Request, Response } from "express";
 import { orderSchema } from "./order.validator";
 import { OrderServices } from "./order.service";
+import { ProductServices } from "../product/product.service";
+
+// export const createOrder = async (req: Request, res: Response) => {
+//   try {
+//     const { error } = orderSchema.validate(req.body);
+//     if (error) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: error.details[0].message });
+//     }
+
+//     const order = await OrderServices.createOrderIntoDb(req.body);
+//     res.status(201).json({
+//       success: true,
+//       message: "Order created successfully!",
+//       data: order,
+//     });
+//   } catch (err) {
+//     if (err instanceof Error) {
+//       if (
+//         err.message === "Product not found" ||
+//         err.message === "Insufficient quantity available in inventory"
+//       ) {
+//         return res.status(400).json({ success: false, message: err.message });
+//       }
+//       res.status(500).json({ success: false, message: "Server error" });
+//     } else {
+//       res.status(500).json({ success: false, message: "Unknown server error" });
+//     }
+//   }
+// };
 
 export const createOrder = async (req: Request, res: Response) => {
   try {
@@ -11,6 +42,25 @@ export const createOrder = async (req: Request, res: Response) => {
         .json({ success: false, message: error.details[0].message });
     }
 
+    // Check if product exists and has sufficient quantity
+    const product = await ProductServices.getSingleProductFromDb(
+      req.body.productId
+    );
+    if (!product || product.inventory.quantity < req.body.quantity) {
+      return res.status(400).json({
+        success: false,
+        message: "Insufficient quantity available in inventory",
+      });
+    }
+
+    // Update product inventory
+    const updatedQuantity = product.inventory.quantity - req.body.quantity;
+    const inStock = updatedQuantity > 0 ? true : false;
+    await ProductServices.updateProductInDb(req.body.productId, {
+      inventory: { quantity: updatedQuantity, inStock: inStock },
+    });
+
+    // Create order
     const order = await OrderServices.createOrderIntoDb(req.body);
     res.status(201).json({
       success: true,
