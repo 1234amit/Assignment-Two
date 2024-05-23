@@ -5,19 +5,6 @@
 
 // const app: Application = express();
 
-// const corsConfig = {
-//   origin: "*",
-//   credential: true,
-//   methods: ["GET", "POST", "PUT", "DELETE"],
-// };
-
-// app.use(express.json());
-// app.options("", cors(corsConfig));
-// app.use(cors(corsConfig));
-// // call the product and order route
-// app.use("/api/products", productRoute);
-// app.use("/api/orders", orderRoute);
-
 import express, { Application, Request, Response, NextFunction } from "express";
 import cors from "cors";
 import { productRoute } from "./app/modules/product/product.route";
