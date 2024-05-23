@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-// validation for product schema
+// validation for product schema by using joi
 export const productSchema = Joi.object({
   name: Joi.string().required(),
   description: Joi.string().required(),
