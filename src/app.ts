@@ -14,7 +14,7 @@ const corsConfig = {
 app.use(express.json());
 app.options("", cors(corsConfig));
 app.use(cors(corsConfig));
-
+// call the product and order route
 app.use("/api/products", productRoute);
 app.use("/api/orders", orderRoute);
 
